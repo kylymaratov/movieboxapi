@@ -1,4 +1,4 @@
 package com.example.tvapp
 
-class MainActivity {
+class Presenter {
 }
