@@ -1,6 +1,7 @@
 import createRequest from '@/parser/request';
 import { FormatHomeResult, TsKgFormat } from '@/parser/tskg/format';
 import { Movie, MovieSeason, TsKgMovieData } from '@/parser/types';
+import { ServerError } from '@/server/server-error';
 
 interface ParseHomeResult {
     baseUrl: string;
@@ -28,7 +29,7 @@ class TsKgParser {
                 data: formatedData,
             };
         } catch (error) {
-            throw error;
+            throw new ServerError('Service Unavailable', 503);
         }
     }
 
@@ -40,7 +41,7 @@ class TsKgParser {
 
             return formatedData;
         } catch (error) {
-            throw error;
+            throw new ServerError('Service Unavailable', 503);
         }
     }
 
@@ -61,7 +62,7 @@ class TsKgParser {
 
             return response.data;
         } catch (error) {
-            throw error;
+            throw new ServerError('Service Unavailable', 503);
         }
     }
 }

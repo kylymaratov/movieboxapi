@@ -2,8 +2,10 @@ import * as cheerio from 'cheerio';
 import { Movie, MovieEpisode, MovieQuality, MovieSeason } from '@/parser/types';
 
 export interface FormatHomeResult {
-    new_movies: Movie[];
-    popular_movies: Movie[];
+    result: {
+        title: string;
+        details: Movie[];
+    }[];
 }
 
 export class TsKgFormat {
@@ -12,8 +14,18 @@ export class TsKgFormat {
 
         const container = $('.app-shows-container > .app-shows-item-full');
 
-        const new_movies: Movie[] = [];
-        const popular_movies: Movie[] = [];
+        const response: FormatHomeResult = {
+            result: [
+                {
+                    title: 'Новинки',
+                    details: [],
+                },
+                {
+                    title: 'Популярные',
+                    details: [],
+                },
+            ],
+        };
 
         container.each((i, item) => {
             const movie_id = $(item).find('a').attr('href');
@@ -33,7 +45,7 @@ export class TsKgFormat {
             if (!movie_id || !poster_url) return;
 
             if (i % 2) {
-                popular_movies.push({
+                response.result[0].details.push({
                     movie_id,
                     poster_url,
                     title,
@@ -42,7 +54,7 @@ export class TsKgFormat {
                     year,
                 });
             } else {
-                new_movies.push({
+                response.result[1].details.push({
                     movie_id,
                     poster_url,
                     title,
@@ -53,7 +65,7 @@ export class TsKgFormat {
             }
         });
 
-        return { new_movies, popular_movies };
+        return response;
     }
 
     formatEpisodes(body: any): MovieSeason[] {
