@@ -10,11 +10,11 @@ export const serverRequestTime = (
 
     res.on('finish', () => {
         const duration = Date.now() - start;
-        const contentType = res.getHeaders()['content-type'];
         const contentLength = res.getHeaders()['content-length'];
+        const userAgent = req.headers['user-agent'];
 
         console.info(
-            `${req.method} ${path} - ${contentType} | ${contentLength} bytes - ${duration}ms | ${res.statusCode}`
+            `${req.method} ${path} - ${userAgent} | ${contentLength} bytes - ${duration}ms | ${res.statusCode}`
         );
     });
 
