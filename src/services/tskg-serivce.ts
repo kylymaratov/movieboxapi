@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import TsKgParser from '@/parser/tskg/parser';
+import { ServerError } from '@/server/server-error';
 
 export class TskgSerivce {
     private tsKgParser: TsKgParser = new TsKgParser();
@@ -25,7 +26,7 @@ export class TskgSerivce {
 
             res.status(200).json(seasons);
         } catch (error) {
-            next(error);
+            next(error as ServerError);
         }
     };
 
@@ -40,7 +41,7 @@ export class TskgSerivce {
 
             res.status(200).json(episode);
         } catch (error) {
-            next(error);
+            next(error as ServerError);
         }
     };
 }

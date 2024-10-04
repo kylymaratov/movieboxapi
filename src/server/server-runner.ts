@@ -13,7 +13,7 @@ const afterRun = (PORT: number) => {
 const serverRun = async (app: Express) => {
     await beforeRun();
 
-    const PORT: number = Number(serverEnv.PORT) || 5000;
+    const PORT: number = Number(serverEnv.PORT);
 
     app.listen(PORT, () => afterRun(PORT));
 };

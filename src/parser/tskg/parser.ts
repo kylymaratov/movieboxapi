@@ -1,11 +1,6 @@
 import createRequest from '@/parser/request';
 import { FormatHomeResult, TsKgFormat } from '@/parser/tskg/format';
-import {
-    Movie,
-    MovieEpisode,
-    MovieSeason,
-    TsKgMovieData,
-} from '@/parser/types';
+import { Movie, MovieSeason, TsKgMovieData } from '@/parser/types';
 
 interface ParseHomeResult {
     baseUrl: string;

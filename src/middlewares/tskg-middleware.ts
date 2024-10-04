@@ -1,3 +1,4 @@
+import { ServerError } from '@/server/server-error';
 import { NextFunction, Request, Response } from 'express';
 import { body, query, validationResult } from 'express-validator';
 
@@ -21,9 +22,7 @@ export class TskgMiddleware {
     ) {
         const errors = validationResult(req);
 
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
+        if (!errors.isEmpty()) throw new ServerError('Validation falied', 400);
 
         next();
     }
