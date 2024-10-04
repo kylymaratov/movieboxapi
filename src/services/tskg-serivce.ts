@@ -24,7 +24,7 @@ export class TskgSerivce {
                 String(movie_id)
             );
 
-            res.status(200).json(seasons);
+            res.status(200).json({ ...seasons, movie_id });
         } catch (error) {
             next(error as ServerError);
         }

@@ -1,59 +1,142 @@
 package com.example.tvapp
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.leanback.app.RowsSupportFragment
+import androidx.leanback.widget.ArrayObjectAdapter
+import androidx.leanback.widget.FocusHighlight
+import androidx.leanback.widget.HeaderItem
+import androidx.leanback.widget.ListRow
+import androidx.leanback.widget.ListRowPresenter
+import androidx.leanback.widget.OnItemViewClickedListener
+import androidx.leanback.widget.OnItemViewSelectedListener
+import androidx.leanback.widget.Presenter
+import androidx.leanback.widget.Row
+import androidx.leanback.widget.RowPresenter
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import com.example.tvapp.api.Response
+import com.example.tvapp.api.RetrofitHelper
+import com.example.tvapp.api.TsKgRepo
+import com.example.tvapp.models.MoviesResponse
+import kotlinx.coroutines.launch
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [ListFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class ListFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+class ListFragment : RowsSupportFragment() {
+    private lateinit var repository: TsKgRepo
+    private var handler: Handler? = null
+    private var itemSelectedListener: ((MoviesResponse.Result.Detail) -> Unit)? = null
+    private var itemClickListener: ((MoviesResponse.Result.Detail) -> Unit)? = null
+    private var runnable: Runnable? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    private val listRowPresenter = object : ListRowPresenter(FocusHighlight.ZOOM_FACTOR_MEDIUM) {
+        override fun isUsingDefaultListSelectEffect(): Boolean {
+            return false
+        }
+    }.apply {
+        shadowEnabled = true
+    }
+
+    private var rootAdapter: ArrayObjectAdapter = ArrayObjectAdapter(ListRowPresenter(FocusHighlight.ZOOM_FACTOR_MEDIUM))
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+
+
+
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        repository = (requireActivity().application as MyApplication).tsKgRepo
+
+        adapter = rootAdapter
+
+        onItemViewSelectedListener = ItemViewSelectedListener()
+        onItemViewClickedListener = ItemViewClickListener()
+
+        handler = Handler(Looper.getMainLooper());
+
+    }
+
+
+    fun bindData(dataList: MoviesResponse) {
+        dataList.result.forEachIndexed { index, result ->
+            val arrayObjectAdapter = ArrayObjectAdapter(ItemPresenter())
+
+
+            result.details.forEach {
+                arrayObjectAdapter.add(it)
+            }
+
+            val headerItem = HeaderItem(result.title)
+            val listRow = ListRow(headerItem, arrayObjectAdapter)
+            rootAdapter.add(listRow)
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_list, container, false)
+    fun setOnContentSelectedListener(listener: (MoviesResponse.Result.Detail) -> Unit) {
+        this.itemSelectedListener = listener
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ListFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ListFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    fun setOnItemClickListener(listener: (MoviesResponse.Result.Detail) -> Unit) {
+        this.itemClickListener = listener
+    }
+
+    inner class ItemViewSelectedListener : OnItemViewSelectedListener {
+        override fun onItemSelected(
+            itemViewHolder: Presenter.ViewHolder?,
+            item: Any?,
+            rowViewHolder: RowPresenter.ViewHolder?,
+            row: Row?
+        ) {
+            if (item is MoviesResponse.Result.Detail) {
+                    runnable?.let {
+                        item.seasons = null
+                        handler?.removeCallbacks(it)
+                    }
+
+                    runnable = Runnable {
+                        lifecycleScope.launch {
+                            val seasons = repository.getMovieSeasons(item.movie_id)
+
+                            item.seasons = seasons
+                            itemSelectedListener?.invoke(item)
+                        }
+                    }
+
+                    handler?.postDelayed(runnable!!, 1000)
             }
+
+        }
+    }
+
+    inner class ItemViewClickListener : OnItemViewClickedListener {
+        override fun onItemClicked(
+            itemViewHolder: Presenter.ViewHolder?,
+            item: Any?,
+            rowViewHolder: RowPresenter.ViewHolder?,
+            row: Row?
+        ) {
+            if (item is MoviesResponse.Result.Detail) {
+                itemClickListener?.invoke(item)
+            }
+        }
+
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        handler?.removeCallbacks(runnable!!)
     }
 }

@@ -1,4 +1,5 @@
-package com.example.tvapp.utils
+package com.example.tvapp
+
 
 object Constants {
 
@@ -12,7 +13,7 @@ object Constants {
     const val MENU_SETTINGS = "settings"
 
 
-
+    /* Intent tags*/
     const val INTENT_MENU = "menu"
     const val SELECTED_ID = "id"
 

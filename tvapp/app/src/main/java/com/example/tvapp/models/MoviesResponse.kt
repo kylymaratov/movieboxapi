@@ -1,6 +1,6 @@
 package com.example.tvapp.models
 
-data class MovieModel(
+data class MoviesResponse(
     val result: List<Result> = listOf()
 ) {
     data class Result(
@@ -14,7 +14,7 @@ data class MovieModel(
             val title: String = "",
             val poster_url: String = "",
             val year: String = "",
-            val description: String = ""
+            var seasons: SeasonsResponse? = null
         )
     }
 }

@@ -1,5 +1,9 @@
 import createRequest from '@/parser/request';
-import { FormatHomeResult, TsKgFormat } from '@/parser/tskg/format';
+import {
+    FormatHomeResult,
+    FromatSeasonsResult,
+    TsKgFormat,
+} from '@/parser/tskg/format';
 import { Movie, MovieSeason, TsKgMovieData } from '@/parser/types';
 import { ServerError } from '@/server/server-error';
 
@@ -33,7 +37,7 @@ class TsKgParser {
         }
     }
 
-    async fetchEpisodes(movie_id: string): Promise<MovieSeason[]> {
+    async fetchEpisodes(movie_id: string): Promise<FromatSeasonsResult> {
         try {
             const response = await this.request(movie_id);
 

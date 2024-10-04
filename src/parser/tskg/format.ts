@@ -8,6 +8,11 @@ export interface FormatHomeResult {
     }[];
 }
 
+export interface FromatSeasonsResult {
+    seasons: MovieSeason[];
+    description: string;
+}
+
 export class TsKgFormat {
     formatHome(body: any, baseUrl: string): FormatHomeResult {
         const $ = cheerio.load(body);
@@ -68,12 +73,14 @@ export class TsKgFormat {
         return response;
     }
 
-    formatEpisodes(body: any): MovieSeason[] {
+    formatEpisodes(body: any): FromatSeasonsResult {
         const $ = cheerio.load(body);
 
         const section = $('.app-show-seasons-section-full');
 
         const seasons: MovieSeason[] = [];
+
+        const description = $('.app-show-description').text();
 
         section.each((i, item) => {
             const season_id = i + 1;
@@ -118,6 +125,6 @@ export class TsKgFormat {
 
             seasons.push({ season_id, episodes });
         });
-        return seasons;
+        return { seasons, description };
     }
 }
