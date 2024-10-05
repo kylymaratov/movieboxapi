@@ -1,9 +1,9 @@
-package com.example.tvapp
+package com.example.tvapp.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,12 +18,12 @@ import androidx.leanback.widget.OnItemViewSelectedListener
 import androidx.leanback.widget.Presenter
 import androidx.leanback.widget.Row
 import androidx.leanback.widget.RowPresenter
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import com.example.tvapp.api.Response
-import com.example.tvapp.api.RetrofitHelper
+import com.example.tvapp.DetailsActivity
+import com.example.tvapp.MyApplication
 import com.example.tvapp.api.TsKgRepo
 import com.example.tvapp.models.MoviesResponse
+import com.example.tvapp.presenters.MoviePresenter
 import kotlinx.coroutines.launch
 
 
@@ -49,9 +49,6 @@ class ListFragment : RowsSupportFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-
-
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
@@ -71,17 +68,27 @@ class ListFragment : RowsSupportFragment() {
 
 
     fun bindData(dataList: MoviesResponse) {
+
+        val existingHeaderTitles = mutableListOf<String>()
+
+        for (i in 0 until rootAdapter.size()) {
+            val row = rootAdapter.get(i) as ListRow
+            existingHeaderTitles.add(row.headerItem.name)
+        }
+
         dataList.result.forEachIndexed { index, result ->
-            val arrayObjectAdapter = ArrayObjectAdapter(ItemPresenter())
+            if (!existingHeaderTitles.contains(result.title)) {
+                val arrayObjectAdapter = ArrayObjectAdapter(MoviePresenter())
 
 
-            result.details.forEach {
-                arrayObjectAdapter.add(it)
+                result.details.forEach {
+                    arrayObjectAdapter.add(it)
+                }
+
+                val headerItem = HeaderItem(result.title)
+                val listRow = ListRow(headerItem, arrayObjectAdapter)
+                rootAdapter.add(listRow)
             }
-
-            val headerItem = HeaderItem(result.title)
-            val listRow = ListRow(headerItem, arrayObjectAdapter)
-            rootAdapter.add(listRow)
         }
     }
 
@@ -102,20 +109,24 @@ class ListFragment : RowsSupportFragment() {
         ) {
             if (item is MoviesResponse.Result.Detail) {
                     runnable?.let {
-                        item.seasons = null
                         handler?.removeCallbacks(it)
                     }
 
                     runnable = Runnable {
                         lifecycleScope.launch {
-                            val seasons = repository.getMovieSeasons(item.movie_id)
+                            if (item.seasons != null) {
+                                itemSelectedListener?.invoke(item)
+                            }else {
+                                val seasons = repository.getMovieSeasons(item.movie_id)
 
-                            item.seasons = seasons
-                            itemSelectedListener?.invoke(item)
+                                item.seasons = seasons
+                                itemSelectedListener?.invoke(item)
+                            }
+
                         }
                     }
 
-                    handler?.postDelayed(runnable!!, 1000)
+                    handler?.postDelayed(runnable!!, 700)
             }
 
         }
@@ -129,7 +140,11 @@ class ListFragment : RowsSupportFragment() {
             row: Row?
         ) {
             if (item is MoviesResponse.Result.Detail) {
-                itemClickListener?.invoke(item)
+                if (item.seasons != null) {
+                    val intent = Intent(context, DetailsActivity::class.java)
+                    intent.putExtra("movie", item)
+                    context?.startActivity(intent)
+                }
             }
         }
 
