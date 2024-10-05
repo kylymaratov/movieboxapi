@@ -1,10 +1,7 @@
-package com.tutorial.tvapp.utils
+package com.example.tvapp.utils
 
-import android.app.Dialog
-import android.content.Context
-import android.view.Window
-import android.widget.TextView
-import com.example.tvapp.R
+ import android.content.Context
+ import android.widget.TextView
 
 class Common {
 

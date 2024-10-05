@@ -5,56 +5,70 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.tvapp.R
+import android.widget.ImageView
+import android.widget.TextView
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import com.bumptech.glide.Glide
+ import com.example.tvapp.R
+import com.example.tvapp.api.TsKgRepo
+import com.example.tvapp.models.MoviesResponse
 
-/**
- * A simple [Fragment] subclass.
- * Use the [DetailsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+
+
 class DetailsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    lateinit var repository: TsKgRepo
+    lateinit var txtTitle: TextView
+    lateinit var txtCountry: TextView
+    lateinit var txtDescription: TextView
+    lateinit var txtInfo: TextView
+    lateinit var imgBanner: ImageView
+    lateinit var seriesListFragment: SeriesListFragment
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_details, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment DetailsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            DetailsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        imgBanner = view.findViewById(R.id.img_banner)
+        txtTitle = view.findViewById(R.id.title)
+        txtCountry = view.findViewById(R.id.country)
+        txtDescription = view.findViewById(R.id.desciption)
+        txtInfo = view.findViewById(R.id.info)
+
+        seriesListFragment = SeriesListFragment()
+
+        arguments?.getParcelable<MoviesResponse.Result.Detail>("movie")?.let { movie ->
+            bindDetailsData(movie)
+            movie.seasons?.let { seasons ->
+                seriesListFragment.bindSeriesData(movie.movie_id, seasons)
+                init()
             }
+        }
     }
+
+    fun init() {
+        val transaction = childFragmentManager.beginTransaction()
+        transaction.add(R.id.series_list_fragment, seriesListFragment)
+        transaction.commit()
+    }
+
+
+
+    fun bindDetailsData(movie: MoviesResponse.Result.Detail) {
+        txtTitle.text = movie.title
+        txtCountry.text = "Страна · " + movie.country
+        txtDescription.text = movie.seasons?.description
+        txtInfo.text = "Год: " + movie.year + " | " + "Сезонов: " + movie.seasons?.seasons?.size + " | " + "Качество: " + movie.seasons?.seasons!![0].episodes!![0].quality
+
+        val url = movie.poster_url
+
+        Glide.with(this).load(url).into(imgBanner)
+    }
+
 }

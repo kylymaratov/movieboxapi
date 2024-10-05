@@ -1,7 +1,5 @@
 package com.example.tvapp
 
-
-
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
@@ -12,15 +10,12 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.leanback.widget.BrowseFrameLayout
+import com.example.tvapp.fragments.HomeFragment
 import com.example.tvapp.fragments.SearchFragment
 import com.example.tvapp.utils.Constants
-import com.tutorial.tvapp.utils.Common
-
-
-
+import com.example.tvapp.utils.Common
 
 class MainActivity : FragmentActivity(), View.OnKeyListener {
-
     lateinit var navBar: BrowseFrameLayout
     lateinit var fragmentContainer: FrameLayout
 
@@ -134,6 +129,10 @@ class MainActivity : FragmentActivity(), View.OnKeyListener {
     }
 
     fun closeMenu() {
+        val animSlide : Animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_left)
+
+        navBar.startAnimation(animSlide)
+
         navBar.requestLayout()
         navBar.layoutParams.width = Common.getWidthInPercent(this, 5)
 

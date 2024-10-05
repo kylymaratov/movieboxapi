@@ -9,9 +9,9 @@ import com.bumptech.glide.Glide
 import com.example.tvapp.R
 import com.example.tvapp.models.MoviesResponse
 
-class ItemPresenter: Presenter() {
+class MoviePresenter: Presenter() {
     override fun onCreateViewHolder(parent: ViewGroup?): ViewHolder {
-        val view = LayoutInflater.from(parent?.context).inflate(R.layout.item_view, parent, false)
+        val view = LayoutInflater.from(parent?.context).inflate(R.layout.item_movie, parent, false)
 
         val params = view.layoutParams
 

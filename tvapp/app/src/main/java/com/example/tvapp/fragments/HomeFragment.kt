@@ -1,4 +1,4 @@
-package com.example.tvapp
+package com.example.tvapp.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.example.tvapp.MyApplication
+import com.example.tvapp.R
 import com.example.tvapp.models.MoviesResponse
 import com.example.tvapp.api.Response
 import com.example.tvapp.api.TsKgRepo
@@ -20,12 +22,12 @@ import kotlinx.coroutines.launch
 class HomeFragment : Fragment() {
 
     lateinit var txtTitle: TextView
-    lateinit var txtCountry: TextView
+    lateinit var txtGenre: TextView
     lateinit var txtDescription: TextView
     lateinit var txtInfo: TextView
 
     lateinit var imgBanner: ImageView
-    lateinit var listFragment: ListFragment
+    lateinit var moviesListFragment: MoviesListFragment
     private lateinit var repository: TsKgRepo
 
     override fun onCreateView(
@@ -33,7 +35,6 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
@@ -53,18 +54,18 @@ class HomeFragment : Fragment() {
       fun init(view: View) {
         imgBanner = view.findViewById(R.id.img_banner)
         txtTitle = view.findViewById(R.id.title)
-        txtCountry = view.findViewById(R.id.country)
+          txtGenre = view.findViewById(R.id.genre)
         txtDescription = view.findViewById(R.id.desciption)
           txtInfo = view.findViewById(R.id.info)
 
 
-          listFragment = ListFragment()
+          moviesListFragment = MoviesListFragment()
 
           var transaction = childFragmentManager.beginTransaction()
-          transaction.add(R.id.list_fragment, listFragment);
+          transaction.add(R.id.movies_list_fragment, moviesListFragment);
           transaction.commit()
 
-          listFragment.setOnContentSelectedListener {
+          moviesListFragment.setOnContentSelectedListener {
               updateBanner(it)
           }
 
@@ -76,7 +77,7 @@ class HomeFragment : Fragment() {
             when(response) {
                 is Response.Success -> {
                     if (response.data != null) {
-                        listFragment.bindData(response.data)
+                        moviesListFragment.bindMoviesData(response.data)
                     }
                 }
                 is Response.Error -> {}
@@ -100,11 +101,13 @@ class HomeFragment : Fragment() {
 
     fun updateBanner(dataList:  MoviesResponse.Result.Detail) {
         txtTitle.text = dataList.title
-        txtCountry.text = "Страна · " + dataList.country
+        txtGenre.text = "Жанр: ${dataList.genre}"
         txtDescription.text = dataList.seasons?.description
-        txtInfo.text = "Год: " + dataList.year + " | " + "Сезонов: " + dataList.seasons?.seasons?.size + " | " + "Качество: " + dataList.seasons?.seasons!![0].episodes!![0].quality
+        txtInfo.text = "Год: " + dataList.year + " | " + "Сезонов: " + dataList.seasons?.seasons?.size + " | " + "Страна: ${dataList.country}"
 
         val url = dataList.poster_url
+
+
         fadeOutImage(imgBanner)
         Glide.with(this).load(url).into(imgBanner)
         fadeInImage(imgBanner)

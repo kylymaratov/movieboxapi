@@ -1,7 +1,6 @@
 package com.example.tvapp
 
 import android.app.Application
-import com.example.tvapp.api.ApiService
 import com.example.tvapp.api.RetrofitHelper
 import com.example.tvapp.api.TsKgRepo
 

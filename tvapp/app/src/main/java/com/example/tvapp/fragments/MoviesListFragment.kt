@@ -27,7 +27,7 @@ import com.example.tvapp.presenters.MoviePresenter
 import kotlinx.coroutines.launch
 
 
-class ListFragment : RowsSupportFragment() {
+class MoviesListFragment : RowsSupportFragment() {
     private lateinit var repository: TsKgRepo
     private var handler: Handler? = null
     private var itemSelectedListener: ((MoviesResponse.Result.Detail) -> Unit)? = null
@@ -42,15 +42,8 @@ class ListFragment : RowsSupportFragment() {
         shadowEnabled = true
     }
 
-    private var rootAdapter: ArrayObjectAdapter = ArrayObjectAdapter(ListRowPresenter(FocusHighlight.ZOOM_FACTOR_MEDIUM))
+    private val rootAdapter: ArrayObjectAdapter = ArrayObjectAdapter(listRowPresenter)
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -63,11 +56,10 @@ class ListFragment : RowsSupportFragment() {
         onItemViewClickedListener = ItemViewClickListener()
 
         handler = Handler(Looper.getMainLooper());
-
     }
 
 
-    fun bindData(dataList: MoviesResponse) {
+    fun bindMoviesData(dataList: MoviesResponse) {
 
         val existingHeaderTitles = mutableListOf<String>()
 
@@ -126,7 +118,7 @@ class ListFragment : RowsSupportFragment() {
                         }
                     }
 
-                    handler?.postDelayed(runnable!!, 700)
+                    handler?.postDelayed(runnable!!, 1000)
             }
 
         }

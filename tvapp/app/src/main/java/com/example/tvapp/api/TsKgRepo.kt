@@ -3,6 +3,7 @@ package com.example.tvapp.api
  import androidx.lifecycle.MutableLiveData
 import com.example.tvapp.models.MoviesResponse
 import com.example.tvapp.models.SeasonsResponse
+ import com.example.tvapp.models.VideoInfoResponse
 
 class TsKgRepo(private val service: ApiService) {
 
@@ -54,6 +55,21 @@ class TsKgRepo(private val service: ApiService) {
             }
         } catch (e: Exception) {
              null
+        }
+    }
+
+
+    suspend fun watchMovie(watch: WatchRequest): VideoInfoResponse? {
+        return try {
+            val result = service.watchMovie(watch)
+
+            if (result.isSuccessful) {
+                result.body()
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
         }
     }
 }

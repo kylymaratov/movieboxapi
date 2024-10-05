@@ -16,9 +16,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+
     }
 }
 
 rootProject.name = "tvapp"
 include(":app")
- 

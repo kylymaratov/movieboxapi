@@ -48,7 +48,6 @@
                 android:background="@drawable/selector_menu"
                 android:textColor="@color/text_selector_white_grey"
                 android:focusable="true" />
-
         </LinearLayout>
 
 
