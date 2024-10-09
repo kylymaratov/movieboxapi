@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.model.Kapt
 
 plugins {
     alias(libs.plugins.android.application)
@@ -13,18 +12,53 @@ android {
         applicationId = "com.example.tvapp"
         minSdk = 21
         targetSdk = 34
-        versionCode = 1
+        versionCode = 2
         versionName = "1.0"
     }
 
+    buildFeatures {
+        buildConfig = true
+        viewBinding = true
+    }
+
+    signingConfigs {
+
+        create("release") {
+            keyAlias = "home-theater-alias"
+            keyPassword = "535456kylym"
+            storeFile = file("./home-theater-release-key.jks")
+            storePassword = "535456kylym"
+        }
+    }
+
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:5002/\"")
+        }
+
         release {
+            buildConfigField("String", "BASE_URL", "\"http://192.168.0.111:5001/\"")
+
+
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
+
+        applicationVariants.all {
+            val variant = this
+            variant.outputs
+                .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+                .forEach { output ->
+                    val outputFileName = "Home-theater-${variant.baseName}-${variant.versionName}-${variant.versionCode}.apk"
+                    output.outputFileName = outputFileName
+                }
+        }
+
+
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

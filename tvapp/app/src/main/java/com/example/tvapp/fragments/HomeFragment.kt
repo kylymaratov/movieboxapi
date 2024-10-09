@@ -1,33 +1,43 @@
 package com.example.tvapp.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.tvapp.MyApplication
 import com.example.tvapp.R
-import com.example.tvapp.models.MoviesResponse
 import com.example.tvapp.api.Response
 import com.example.tvapp.api.TsKgRepo
+import com.example.tvapp.models.MoviesResponse
 import kotlinx.coroutines.launch
 
 
 class HomeFragment : Fragment() {
+    lateinit var movie_title: TextView
+    lateinit var movie_genre: TextView
+    lateinit var movie_description: TextView
+    lateinit var movie_additional_info: TextView
 
-    lateinit var txtTitle: TextView
-    lateinit var txtGenre: TextView
-    lateinit var txtDescription: TextView
-    lateinit var txtInfo: TextView
+    lateinit var movie_cover: ImageView
 
-    lateinit var imgBanner: ImageView
     lateinit var moviesListFragment: MoviesListFragment
+    lateinit var progress_bar: ProgressBar
+    lateinit var error_content: LinearLayout
+    lateinit var retry_button: Button
+    lateinit var gradient_banner: View
+
     private lateinit var repository: TsKgRepo
 
     override fun onCreateView(
@@ -35,40 +45,63 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        repository = (requireActivity().application as MyApplication).tsKgRepo
+
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        repository = (requireActivity().application as MyApplication).tsKgRepo
+        setFragments()
+        updateBunnerListener()
+        setMovieInfo(view)
 
-        lifecycleScope.launch {
-            repository.getHome()
+        retry_button.setOnClickListener {
+            getContent()
         }
-
-        setMovies()
-        init(view)
     }
 
-      fun init(view: View) {
-        imgBanner = view.findViewById(R.id.img_banner)
-        txtTitle = view.findViewById(R.id.title)
-          txtGenre = view.findViewById(R.id.genre)
-        txtDescription = view.findViewById(R.id.desciption)
-          txtInfo = view.findViewById(R.id.info)
+    fun setFragments() {
+        moviesListFragment = MoviesListFragment()
+
+        var transaction = childFragmentManager.beginTransaction()
+        transaction.add(R.id.movies_list_fragment, moviesListFragment);
+        transaction.commit()
+    }
+
+    fun updateBunnerListener() {
+        moviesListFragment.setOnContentSelectedListener {
+            updateBanner(it)
+        }
+    }
+
+    fun getContent () {
+        lifecycleScope.launch {
+            progress_bar.visibility = View.VISIBLE
+            error_content.visibility = View.GONE
+            repository.getHome()
+        }
+    }
 
 
-          moviesListFragment = MoviesListFragment()
+    fun setMovieInfo(view: View) {
+          val headerLayout: ConstraintLayout = view.findViewById(R.id.layout_header)
+          val infoLayout: ConstraintLayout = headerLayout.findViewById(R.id.layout_info)
 
-          var transaction = childFragmentManager.beginTransaction()
-          transaction.add(R.id.movies_list_fragment, moviesListFragment);
-          transaction.commit()
+          movie_cover = headerLayout.findViewById(R.id.movie_cover)
+          movie_title = infoLayout.findViewById(R.id.movie_title)
+          movie_genre = infoLayout.findViewById(R.id.movie_genre)
+          movie_description = infoLayout.findViewById(R.id.movie_description)
+          movie_additional_info= infoLayout.findViewById(R.id.movie_additional_info)
 
-          moviesListFragment.setOnContentSelectedListener {
-              updateBanner(it)
-          }
+          progress_bar  = view.findViewById(R.id.progress_bar)
+          error_content = view.findViewById(R.id.error_content)
+          retry_button = view.findViewById(R.id.retry_button)
+          gradient_banner = view.findViewById(R.id.gradient_horizontal)
 
+          getContent()
+          setMovies()
     }
 
 
@@ -76,17 +109,31 @@ class HomeFragment : Fragment() {
         repository.movies.observe(viewLifecycleOwner, Observer { response ->
             when(response) {
                 is Response.Success -> {
-                    if (response.data != null) {
+                    response.data?.let {
                         moviesListFragment.bindMoviesData(response.data)
                     }
+                    progress_bar.visibility = View.GONE
+                    error_content.visibility = View.GONE
                 }
-                is Response.Error -> {}
-
-                is Response.Loading -> {}
+                is Response.Error -> {
+                    progress_bar.visibility = View.GONE
+                    error_content.visibility = View.VISIBLE
+                    retry_button.requestFocus()
+                }
             }
         })
+
     }
 
+    fun fadeInView(view: View) {
+        val fadeIn = AnimationUtils.loadAnimation(view.context, R.anim.fade_in)
+        view.startAnimation(fadeIn)
+    }
+
+    fun fadeOutView(view: View) {
+        val fadeOut = AnimationUtils.loadAnimation(view.context, R.anim.fade_out)
+        view.startAnimation(fadeOut)
+    }
 
     fun fadeInImage(imageView: ImageView) {
         val fadeIn = AnimationUtils.loadAnimation(imageView.context, R.anim.fade_in)
@@ -98,18 +145,26 @@ class HomeFragment : Fragment() {
         imageView.startAnimation(fadeOut)
     }
 
+    fun updateBanner(movie: MoviesResponse.Result.Detail) {
+       movie?.let {
+           fadeOutView(gradient_banner)
+           gradient_banner.visibility = View.GONE
 
-    fun updateBanner(dataList:  MoviesResponse.Result.Detail) {
-        txtTitle.text = dataList.title
-        txtGenre.text = "Жанр: ${dataList.genre}"
-        txtDescription.text = dataList.seasons?.description
-        txtInfo.text = "Год: " + dataList.year + " | " + "Сезонов: " + dataList.seasons?.seasons?.size + " | " + "Страна: ${dataList.country}"
+           movie_title.text = movie.title
+           movie_genre.text = "Жанр: ${movie.genre}"
+           movie_description.text = movie.seasons?.description
+           movie_additional_info.text = "Год: " + movie.year + " | " + "Сезонов: " + movie.seasons?.seasons?.size + " | " + "Страна: ${movie.country}"
 
-        val url = dataList.poster_url
+           gradient_banner.visibility = View.VISIBLE
 
+           fadeInView(gradient_banner)
 
-        fadeOutImage(imgBanner)
-        Glide.with(this).load(url).into(imgBanner)
-        fadeInImage(imgBanner)
+           val url = movie.poster_url
+
+           fadeOutImage(movie_cover)
+           Glide.with(this).load(url).into(movie_cover)
+           fadeInImage(movie_cover)
+       }
     }
+
     }

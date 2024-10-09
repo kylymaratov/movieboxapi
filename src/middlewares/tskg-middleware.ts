@@ -15,6 +15,10 @@ export class TskgMiddleware {
         ];
     }
 
+    search(): any[] {
+        return [query('query').notEmpty(), this.checkValidationResult];
+    }
+
     private checkValidationResult(
         req: Request,
         res: Response,

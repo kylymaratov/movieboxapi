@@ -2,21 +2,29 @@ package com.example.tvapp.presenters
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.leanback.widget.Presenter
 import com.bumptech.glide.Glide
 import com.example.tvapp.R
 import com.example.tvapp.models.MoviesResponse
 
 class MoviePresenter: Presenter() {
+
+    lateinit var movie_title: TextView
+    lateinit var movie_cover: ImageView
+
     override fun onCreateViewHolder(parent: ViewGroup?): ViewHolder {
         val view = LayoutInflater.from(parent?.context).inflate(R.layout.item_movie, parent, false)
 
         val params = view.layoutParams
 
         params.width = getWidthInPercent(parent!!.context, 12)
-        params.height = getHeightInPercent(parent!!.context, 32)
+
+        movie_title = view.findViewById(R.id.movie_title)
+        movie_cover= view.findViewById(R.id.poster_image)
 
         return ViewHolder(view)
     }
@@ -35,14 +43,23 @@ class MoviePresenter: Presenter() {
     override fun onBindViewHolder(viewHolder: ViewHolder?, item: Any?) {
         val content = item as? MoviesResponse.Result.Detail
 
-        val imageview = viewHolder?.view?.findViewById<ImageView>(R.id.poster_image)
-
         val url = content?.poster_url
+
+        if (content?.search_title != null) {
+            movie_title.text = content.title
+            movie_title.visibility = View.VISIBLE
+        }
+
+        if (content?.search_title == null && viewHolder?.view != null) {
+            val params = viewHolder.view.layoutParams
+            params.height =  getHeightInPercent(viewHolder.view?.context!!, 32)
+            viewHolder.view.layoutParams = params
+        }
 
          Glide.with(viewHolder?.view?.context!!)
             .load(url)
             .skipMemoryCache(false)
-            .into(imageview!!)
+            .into(movie_cover)
     }
 
 

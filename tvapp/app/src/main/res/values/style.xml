@@ -1,5 +1,5 @@
 <resources>
     <style name="Theme.TvApp" parent="@style/Theme.Leanback">
-        <item name="android:windowBackground">#202020</item>
+        <item name="android:windowBackground">#0F0F0F</item>
     </style>
 </resources>

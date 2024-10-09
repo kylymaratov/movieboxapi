@@ -4,9 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.LayoutInflater
+import android.util.Log
+
 import android.view.View
-import android.view.ViewGroup
+
+import android.widget.TextView
 import androidx.leanback.app.RowsSupportFragment
 import androidx.leanback.widget.ArrayObjectAdapter
 import androidx.leanback.widget.FocusHighlight
@@ -25,14 +27,16 @@ import com.example.tvapp.api.TsKgRepo
 import com.example.tvapp.models.MoviesResponse
 import com.example.tvapp.presenters.MoviePresenter
 import kotlinx.coroutines.launch
+import com.example.tvapp.R
 
 
 class MoviesListFragment : RowsSupportFragment() {
-    private lateinit var repository: TsKgRepo
-    private var handler: Handler? = null
-    private var itemSelectedListener: ((MoviesResponse.Result.Detail) -> Unit)? = null
-    private var itemClickListener: ((MoviesResponse.Result.Detail) -> Unit)? = null
     private var runnable: Runnable? = null
+    private var handler: Handler? = null
+
+    private lateinit var repository: TsKgRepo
+    private var itemSelectedListener: ((MoviesResponse.Result.Detail) -> Unit)? = null
+
 
     private val listRowPresenter = object : ListRowPresenter(FocusHighlight.ZOOM_FACTOR_MEDIUM) {
         override fun isUsingDefaultListSelectEffect(): Boolean {
@@ -43,7 +47,6 @@ class MoviesListFragment : RowsSupportFragment() {
     }
 
     private val rootAdapter: ArrayObjectAdapter = ArrayObjectAdapter(listRowPresenter)
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -59,25 +62,23 @@ class MoviesListFragment : RowsSupportFragment() {
     }
 
 
-    fun bindMoviesData(dataList: MoviesResponse) {
-
-        val existingHeaderTitles = mutableListOf<String>()
-
-        for (i in 0 until rootAdapter.size()) {
-            val row = rootAdapter.get(i) as ListRow
-            existingHeaderTitles.add(row.headerItem.name)
+    fun bindMoviesData(movies: MoviesResponse  ) {
+        rootAdapter.clear()
+        if (movies.result.size != 0) {
+            createListRow(movies  )
         }
+    }
 
-        dataList.result.forEachIndexed { index, result ->
-            if (!existingHeaderTitles.contains(result.title)) {
+    fun createListRow(movies: MoviesResponse ) {
+        movies.result.forEachIndexed { index, movie ->
+            if (movie.details.size != 0) {
                 val arrayObjectAdapter = ArrayObjectAdapter(MoviePresenter())
 
-
-                result.details.forEach {
+                movie.details.forEach {
                     arrayObjectAdapter.add(it)
                 }
 
-                val headerItem = HeaderItem(result.title)
+                val headerItem = HeaderItem(movie.title)
                 val listRow = ListRow(headerItem, arrayObjectAdapter)
                 rootAdapter.add(listRow)
             }
@@ -88,10 +89,6 @@ class MoviesListFragment : RowsSupportFragment() {
         this.itemSelectedListener = listener
     }
 
-    fun setOnItemClickListener(listener: (MoviesResponse.Result.Detail) -> Unit) {
-        this.itemClickListener = listener
-    }
-
     inner class ItemViewSelectedListener : OnItemViewSelectedListener {
         override fun onItemSelected(
             itemViewHolder: Presenter.ViewHolder?,
@@ -99,7 +96,8 @@ class MoviesListFragment : RowsSupportFragment() {
             rowViewHolder: RowPresenter.ViewHolder?,
             row: Row?
         ) {
-            if (item is MoviesResponse.Result.Detail) {
+            if (item is MoviesResponse.Result.Detail && handler !== null) {
+
                     runnable?.let {
                         handler?.removeCallbacks(it)
                     }
@@ -131,7 +129,7 @@ class MoviesListFragment : RowsSupportFragment() {
             rowViewHolder: RowPresenter.ViewHolder?,
             row: Row?
         ) {
-            if (item is MoviesResponse.Result.Detail) {
+            if (item is MoviesResponse.Result.Detail && context !== null) {
                 if (item.seasons != null) {
                     val intent = Intent(context, DetailsActivity::class.java)
                     intent.putExtra("movie", item)
@@ -144,6 +142,12 @@ class MoviesListFragment : RowsSupportFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        handler?.removeCallbacks(runnable!!)
+
+        handler?.let { handler ->
+            runnable?.let {
+                handler.removeCallbacks(it)
+            }
+        }
+
     }
 }

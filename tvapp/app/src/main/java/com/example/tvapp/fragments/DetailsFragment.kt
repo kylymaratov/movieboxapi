@@ -5,23 +5,24 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.Glide
- import com.example.tvapp.R
-import com.example.tvapp.api.TsKgRepo
+import com.example.tvapp.R
 import com.example.tvapp.models.MoviesResponse
 
 
 
 class DetailsFragment : Fragment() {
-    lateinit var repository: TsKgRepo
-    lateinit var txtTitle: TextView
-    lateinit var txtCountry: TextView
-    lateinit var txtDescription: TextView
-    lateinit var txtInfo: TextView
-    lateinit var imgBanner: ImageView
+    lateinit var movie_title: TextView
+    lateinit var movie_genre: TextView
+    lateinit var movie_description: TextView
+    lateinit var movie_additional_info: TextView
+
+    lateinit var movie_cover: ImageView
+    lateinit var back_button: Button
     lateinit var seriesListFragment: SeriesListFragment
 
     override fun onCreateView(
@@ -35,11 +36,16 @@ class DetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        imgBanner = view.findViewById(R.id.img_banner)
-        txtTitle = view.findViewById(R.id.title)
-        txtCountry = view.findViewById(R.id.country)
-        txtDescription = view.findViewById(R.id.desciption)
-        txtInfo = view.findViewById(R.id.info)
+        val headerLayout: ConstraintLayout = view.findViewById(R.id.layout_header)
+        val infoLayout: ConstraintLayout = headerLayout.findViewById(R.id.layout_info)
+
+
+        movie_cover = headerLayout.findViewById(R.id.movie_cover)
+        movie_title = infoLayout.findViewById(R.id.movie_title)
+        movie_genre = infoLayout.findViewById(R.id.movie_genre)
+        movie_description = infoLayout.findViewById(R.id.movie_description)
+        movie_additional_info = infoLayout.findViewById(R.id.movie_additional_info)
+        back_button = headerLayout.findViewById(R.id.button_back)
 
         seriesListFragment = SeriesListFragment()
 
@@ -50,25 +56,28 @@ class DetailsFragment : Fragment() {
                 init()
             }
         }
+
+
+        back_button.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
     }
 
-    fun init() {
+    private fun init() {
         val transaction = childFragmentManager.beginTransaction()
         transaction.add(R.id.series_list_fragment, seriesListFragment)
         transaction.commit()
     }
 
-
-
     fun bindDetailsData(movie: MoviesResponse.Result.Detail) {
-        txtTitle.text = movie.title
-        txtCountry.text = "Страна · " + movie.country
-        txtDescription.text = movie.seasons?.description
-        txtInfo.text = "Год: " + movie.year + " | " + "Сезонов: " + movie.seasons?.seasons?.size + " | " + "Качество: " + movie.seasons?.seasons!![0].episodes!![0].quality
+        movie_title.text = movie.title
+        movie_genre.text = "Жанры: " + movie.genre
+        movie_description.text = movie.seasons?.description
+        movie_additional_info.text = "Год: " + movie.year + " | " + "Сезонов: " + movie.seasons?.seasons?.size + " | " + "Страна: " + movie.country
 
         val url = movie.poster_url
 
-        Glide.with(this).load(url).into(imgBanner)
+        Glide.with(this).load(url).into(movie_cover)
     }
 
 }

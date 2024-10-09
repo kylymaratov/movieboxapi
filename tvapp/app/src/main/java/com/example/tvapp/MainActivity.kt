@@ -1,6 +1,8 @@
 package com.example.tvapp
 
+import android.content.Context
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.View
 import android.view.animation.Animation
@@ -38,10 +40,8 @@ class MainActivity : FragmentActivity(), View.OnKeyListener {
         btnSearch = findViewById(R.id.btn_search)
         btnHome = findViewById(R.id.btn_home)
 
-
         btnSearch.setOnKeyListener(this)
         btnHome.setOnKeyListener(this)
-
 
         lastSelectedMenu = btnHome
         lastSelectedMenu.isActivated = true
@@ -129,9 +129,6 @@ class MainActivity : FragmentActivity(), View.OnKeyListener {
     }
 
     fun closeMenu() {
-        val animSlide : Animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_left)
-
-        navBar.startAnimation(animSlide)
 
         navBar.requestLayout()
         navBar.layoutParams.width = Common.getWidthInPercent(this, 5)

@@ -3,7 +3,7 @@ import { serverEnv } from '@/server/server-env';
 import { connect } from 'mongoose';
 
 const beforeRun = async () => {
-    await connect(serverEnv.MONGO_URL || '', {});
+    await connect(serverEnv.env.MONGO_URL || '', {});
 };
 
 const afterRun = (PORT: number) => {
@@ -13,7 +13,7 @@ const afterRun = (PORT: number) => {
 const serverRun = async (app: Express) => {
     await beforeRun();
 
-    const PORT: number = Number(serverEnv.PORT);
+    const PORT: number = serverEnv.isProd ? 5001 : 5002;
 
     app.listen(PORT, () => afterRun(PORT));
 };

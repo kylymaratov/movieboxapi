@@ -3,15 +3,10 @@ import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.ColorInt
-import androidx.annotation.ColorLong
 import androidx.leanback.widget.Presenter
-import com.bumptech.glide.Glide
 import com.example.tvapp.R
-import com.example.tvapp.models.MoviesResponse
-import com.example.tvapp.models.SeasonsResponse
+import com.example.tvapp.models.SeriesResponse
 
 class SeriaPresenter: Presenter() {
 
@@ -38,7 +33,7 @@ class SeriaPresenter: Presenter() {
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder?, item: Any?) {
-        val content = item as? SeasonsResponse.Episodes
+        val content = item as? SeriesResponse.Episodes
 
         var txtEpisode_title =  viewHolder?.view?.findViewById<TextView>(R.id.episode_title)
         var txtEpisode_quality   = viewHolder?.view?.findViewById<TextView>(R.id.episode_quality)
@@ -56,8 +51,5 @@ class SeriaPresenter: Presenter() {
         }
     }
 
-
-    override fun onUnbindViewHolder(viewHolder: ViewHolder?) {
-
-    }
+    override fun onUnbindViewHolder(viewHolder: ViewHolder?) {}
 }

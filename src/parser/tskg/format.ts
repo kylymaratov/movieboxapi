@@ -1,11 +1,13 @@
 import * as cheerio from 'cheerio';
 import { Movie, MovieEpisode, MovieQuality, MovieSeason } from '@/parser/types';
 
+export interface FormatedDetails {
+    title: string;
+    details: Movie[];
+}
+
 export interface FormatHomeResult {
-    result: {
-        title: string;
-        details: Movie[];
-    }[];
+    result: FormatedDetails[];
 }
 
 export interface FromatSeasonsResult {
@@ -17,7 +19,7 @@ export class TsKgFormat {
     formatHome(body: any, baseUrl: string): FormatHomeResult {
         const $ = cheerio.load(body);
 
-        const container = $('.app-shows-container > .app-shows-item-full');
+        const container = $('#app-index-shows-new > .app-shows-item-full');
 
         const response: FormatHomeResult = {
             result: [
@@ -49,7 +51,7 @@ export class TsKgFormat {
 
             if (!movie_id || !poster_url) return;
 
-            if (i % 2) {
+            if (i % 2 === 0) {
                 response.result[0].details.push({
                     movie_id,
                     poster_url,
@@ -58,7 +60,7 @@ export class TsKgFormat {
                     country,
                     year,
                 });
-            } else {
+            } else if (i % 2 === 1) {
                 response.result[1].details.push({
                     movie_id,
                     poster_url,
@@ -71,6 +73,43 @@ export class TsKgFormat {
         });
 
         return response;
+    }
+
+    formatCategory(body: any, baseUrl: string, title: string): FormatedDetails {
+        const $ = cheerio.load(body);
+
+        const section = $('.app-shows-container > .app-shows-item-full');
+
+        const resutt: FormatedDetails = { title, details: [] };
+
+        section.each((i, item) => {
+            const movie_id = $(item).find('a').attr('href');
+            const poster_url = baseUrl + $(item).find('a > img').attr('src');
+            const title = $(item).find('.app-shows-card-title').text().trim();
+            let genre = $(item).find('.app-shows-card-tooltip').text().trim();
+            const country = $(item)
+                .find('.app-shows-card-tooltip > .app-shows-card-flag')
+                .attr('alt');
+
+            const genres = genre.split(',');
+
+            const year = genres[0];
+
+            genre = genres.slice(1, genres.length).toString().trim();
+
+            if (!movie_id || !poster_url) return;
+
+            resutt.details.push({
+                movie_id,
+                poster_url,
+                title,
+                genre,
+                country,
+                year,
+            });
+        });
+
+        return resutt;
     }
 
     formatEpisodes(body: any): FromatSeasonsResult {

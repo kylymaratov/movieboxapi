@@ -3,7 +3,7 @@ package com.example.tvapp.models
 import android.os.Parcel
 import android.os.Parcelable
 
-data class SeasonsResponse(
+data class SeriesResponse(
     val seasons: List<Seasons> = listOf(),
     val description: String = "",
     val movie_id: String = ""
@@ -24,12 +24,12 @@ data class SeasonsResponse(
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<SeasonsResponse> {
-        override fun createFromParcel(parcel: Parcel): SeasonsResponse {
-            return SeasonsResponse(parcel)
+    companion object CREATOR : Parcelable.Creator<SeriesResponse> {
+        override fun createFromParcel(parcel: Parcel): SeriesResponse {
+            return SeriesResponse(parcel)
         }
 
-        override fun newArray(size: Int): Array<SeasonsResponse?> {
+        override fun newArray(size: Int): Array<SeriesResponse?> {
             return arrayOfNulls(size)
         }
     }

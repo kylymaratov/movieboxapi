@@ -37,6 +37,7 @@ const createRequest = (baseURL: string) => {
             method,
             data: JSON.stringify(data),
             headers: { ...headers, 'User-Agent': randomUserAgent },
+            withCredentials: false,
         });
     };
 };

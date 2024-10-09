@@ -17,7 +17,8 @@ data class MoviesResponse(
             val title: String = "",
             val poster_url: String = "",
             val year: String = "",
-            var seasons: SeasonsResponse? = null
+            var seasons: SeriesResponse? = null,
+            var search_title: String? = null
         ) : Parcelable {
             constructor(parcel: Parcel) : this(
                 movie_id = parcel.readString() ?: "",
@@ -26,7 +27,7 @@ data class MoviesResponse(
                 title = parcel.readString() ?: "",
                 poster_url = parcel.readString() ?: "",
                 year = parcel.readString() ?: "",
-                seasons = parcel.readParcelable(SeasonsResponse::class.java.classLoader)
+                seasons = parcel.readParcelable(SeriesResponse::class.java.classLoader)
             )
 
             override fun writeToParcel(parcel: Parcel, flags: Int) {

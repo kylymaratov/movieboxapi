@@ -33,5 +33,7 @@ class DetailsActivity : FragmentActivity() {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.details_container, detailsFragment)
         transaction.commit()
+
+
     }
 }

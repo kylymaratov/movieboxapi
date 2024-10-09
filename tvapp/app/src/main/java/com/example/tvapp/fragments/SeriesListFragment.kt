@@ -16,12 +16,14 @@ import androidx.leanback.widget.Presenter
 import androidx.leanback.widget.Row
 import androidx.leanback.widget.RowPresenter
 import com.example.tvapp.models.MoviesResponse
-import com.example.tvapp.models.SeasonsResponse
+import com.example.tvapp.models.SeriesResponse
  import com.example.tvapp.presenters.SeriaPresenter
  import android.content.Intent
+ import android.util.Log
  import androidx.lifecycle.lifecycleScope
  import com.example.tvapp.MyApplication
  import com.example.tvapp.VideoPlayerActivity
+ import com.example.tvapp.api.Response
  import com.example.tvapp.api.TsKgRepo
  import com.example.tvapp.api.WatchRequest
  import kotlinx.coroutines.launch
@@ -52,11 +54,10 @@ class SeriesListFragment : RowsSupportFragment() {
         onItemViewClickedListener = ItemViewClickListener()
     }
 
-    fun bindSeriesData(icnoming_movie_id: String, seasons: SeasonsResponse) {
+    fun bindSeriesData(icnoming_movie_id: String, seasons: SeriesResponse) {
         movie_id = icnoming_movie_id
         seasons.seasons.forEachIndexed { index, season ->
             val arrayObjectAdapter = ArrayObjectAdapter(SeriaPresenter())
-
 
             season.episodes.forEach {
                 arrayObjectAdapter.add(it)
@@ -69,11 +70,30 @@ class SeriesListFragment : RowsSupportFragment() {
     }
 
 
-    private fun openVideo(m3u8Link: String) {
+    private fun openVideo(episodes: List<SeriesResponse.Episodes>, currentIndex: Int) {
+        val episodeUrls = episodes.map { it.episode_source_id }.toCollection(ArrayList())
+
         val intent = Intent(context, VideoPlayerActivity::class.java).apply {
-            putExtra("VIDEO_URL", m3u8Link)
+            putStringArrayListExtra("EPISODE_SOURCE_LIST", episodeUrls)
+            putExtra("CURRENT_EPISODE", currentIndex - 1)
+            putExtra("MOVIE_ID", movie_id)
         }
         startActivity(intent)
+    }
+
+
+    fun getSeasonsFromRootAdapter(season_id: Int): List<SeriesResponse.Episodes>? {
+        val listRow = (0 until rootAdapter.size()).map { rootAdapter.get(it) as ListRow }
+            .find { row ->
+                val seasonHeader = row.headerItem.name
+                val currentSeasonId = seasonHeader.replace("Сезон: ", "").toInt()
+                currentSeasonId == season_id
+            }
+
+        return listRow?.let { row ->
+            val arrayObjectAdapter = row.adapter as ArrayObjectAdapter
+            (0 until arrayObjectAdapter.size()).map { arrayObjectAdapter.get(it) as SeriesResponse.Episodes }
+        }
     }
 
 
@@ -86,9 +106,7 @@ class SeriesListFragment : RowsSupportFragment() {
         ) {
             if (item is MoviesResponse.Result.Detail) {
                 itemSelectedListener?.invoke(item)
-
                 }
-
             }
 
         }
@@ -98,16 +116,17 @@ class SeriesListFragment : RowsSupportFragment() {
             itemViewHolder: Presenter.ViewHolder?,
             item: Any?,
             rowViewHolder: RowPresenter.ViewHolder?,
-            row: Row?
+            row: Row
         ) {
-            if (item is SeasonsResponse.Episodes) {
+            if (item is SeriesResponse.Episodes) {
                 lifecycleScope.launch {
-                    val info = repository.watchMovie(WatchRequest(movie_id = movie_id, episode_source_id = item.episode_source_id))
+                    val seasonHeader = row.headerItem.name
+                    val currentSeasonId = seasonHeader.replace("Сезон: ", "").toInt()
 
-                    if ( info?.video?.url != null) {
-                        openVideo(info.video.url)
+                    val episodes = getSeasonsFromRootAdapter(currentSeasonId)
+                    if (episodes != null) {
+                         openVideo(episodes, item.episode_id.toInt())
                     }
-
                 }
             }
         }

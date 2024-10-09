@@ -43,7 +43,7 @@
                 android:gravity="center_vertical"
                 android:text="TS.KG"
                 android:drawablePadding="20dp"
-                android:drawableLeft="@drawable/ic_home"
+                android:drawableLeft="@drawable/ic_movie"
                 android:layout_height="45dp"
                 android:background="@drawable/selector_menu"
                 android:textColor="@color/text_selector_white_grey"
