@@ -1,16 +1,16 @@
 import { Router } from 'express';
 import { TskgSerivce } from '@/services/tskg-serivce';
-import { TskgMiddleware } from '@/middlewares/tskg-middleware';
+import { TsKgMiddleware } from '@/middlewares/tskg-middleware';
 
 const tskgApi = Router();
 const tsKgService = new TskgSerivce();
-const tsKgMiddleware = new TskgMiddleware();
+const tsKgMiddleware = new TsKgMiddleware();
 
 tskgApi.get('/home', tsKgService.getHome);
 tskgApi.get('/search', tsKgMiddleware.search(), tsKgService.search);
 tskgApi.post(
     '/episodes',
-    tsKgMiddleware.getEpisodesMiddleware(),
+    tsKgMiddleware.getEpisodes(),
     tsKgService.getEpisodes
 );
 tskgApi.post('/watch', tsKgMiddleware.watchEpisode(), tsKgService.watchEpisode);

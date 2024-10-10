@@ -1,12 +1,10 @@
 import { Router } from 'express';
 import tskgApi from '@/api/tskg/tskg-api';
-import { MainService } from '@/services/main-service';
+import coreApi from './core/core-api';
 
 const api = Router();
-const mainService = new MainService();
 
-api.get('/menu', mainService.getMenu);
-
+api.use('/core/', coreApi);
 api.use(`/tskg/`, tskgApi);
 
 export default api;
