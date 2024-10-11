@@ -3,6 +3,7 @@ import { Movie, MovieEpisode, MovieQuality, MovieSeason } from '@/parser/types';
 
 export interface FormatedDetails {
     title: string;
+    identificator?: string;
     details: Movie[];
 }
 

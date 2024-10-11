@@ -28,15 +28,14 @@ import androidx.lifecycle.lifecycleScope
 import com.example.tvapp.MyApplication
 import com.example.tvapp.R
 import com.example.tvapp.api.Response
-import com.example.tvapp.api.TsKgRepo
+import com.example.tvapp.api.Repository
 import kotlinx.coroutines.launch
 
 class SearchFragment : Fragment() {
-
     lateinit var progress_bar: ProgressBar
     lateinit var error_message: TextView
     lateinit var searchEditText: EditText
-    private lateinit var repository: TsKgRepo
+    private lateinit var repository: Repository
     private lateinit var moviesListFragment: MoviesListFragment
     private val handler = Handler(Looper.getMainLooper())
     private var runnable: Runnable? = null
@@ -48,7 +47,6 @@ class SearchFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
 
         speechRecognitionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -71,7 +69,7 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        repository = (requireActivity().application as MyApplication).tsKgRepo
+        repository = (requireActivity().application as MyApplication).repository
 
         error_message = view.findViewById(R.id.error_message)
         progress_bar  = view.findViewById(R.id.progress_bar)

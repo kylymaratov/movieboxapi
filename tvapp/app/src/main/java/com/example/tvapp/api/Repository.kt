@@ -1,20 +1,37 @@
 package com.example.tvapp.api
 
  import androidx.lifecycle.MutableLiveData
-import com.example.tvapp.models.MoviesResponse
+ import com.example.tvapp.models.MenuResponse
+ import com.example.tvapp.models.MoviesResponse
 import com.example.tvapp.models.SeriesResponse
  import com.example.tvapp.models.VideoInfoResponse
 
-class TsKgRepo(private val service: ApiService) {
-
+class Repository(private val service: ApiService) {
     val movies = MutableLiveData<Response<MoviesResponse>>()
     val searchResult = MutableLiveData<Response<MoviesResponse>>()
     val movieSeasonsCache: MutableLiveData<Map<String, Response<SeriesResponse>>> = MutableLiveData(mutableMapOf())
 
+    fun clearMovies() {
+        movies.value = null
+    }
+
+    suspend fun getMenu(): MenuResponse? {
+        try {
+            val result = service.getMenu()
+
+            if (result.isSuccessful) {
+                return result.body()
+            } else {
+                return null
+            }
+        } catch (e: Exception) {
+            return null
+        }
+    }
 
     suspend fun searchMovies(query: String) {
         try {
-            val result = service.search(query)
+            val result = service.search( query)
 
             if (result.isSuccessful) {
                 result.body()?.let { responseBody ->
@@ -30,13 +47,13 @@ class TsKgRepo(private val service: ApiService) {
         }
     }
 
-    suspend fun getHome() {
-        if (movies.value?.data != null) {
+    suspend fun getHome(repName: String) {
+        if (movies.value != null) {
             return movies.postValue(movies.value)
         }
 
          try {
-            val result = service.getHome()
+            val result = service.getHome("${repName}/home")
 
             if (result.isSuccessful) {
                 result.body()?.let { responseBody ->
@@ -52,7 +69,7 @@ class TsKgRepo(private val service: ApiService) {
         }
     }
 
-    suspend fun getMovieSeasons(movie_id: String): SeriesResponse? {
+    suspend fun getMovieSeasons(repName: String, movie_id: String): SeriesResponse? {
          val cachedResponse = movieSeasonsCache.value?.get(movie_id)
 
          if (cachedResponse is Response.Success) {
@@ -60,7 +77,7 @@ class TsKgRepo(private val service: ApiService) {
         }
 
         return try {
-            val result = service.getMovieSeasons(MovieIdRequest(movie_id))
+            val result = service.getMovieSeasons("${repName}/episodes", MovieIdRequest(movie_id))
 
             if (result.isSuccessful) {
                 result.body()?.also { seasonsResponse ->
@@ -82,9 +99,9 @@ class TsKgRepo(private val service: ApiService) {
         }
     }
 
-    suspend fun watchMovie(watch: WatchRequest): VideoInfoResponse? {
+    suspend fun watchMovie(repName: String, watch: WatchRequest): VideoInfoResponse? {
         return try {
-            val result = service.watchMovie(watch)
+            val result = service.watchMovie("${repName}/watch", watch)
 
             if (result.isSuccessful) {
                 result.body()

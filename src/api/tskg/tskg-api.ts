@@ -7,7 +7,6 @@ const tsKgService = new TskgSerivce();
 const tsKgMiddleware = new TsKgMiddleware();
 
 tskgApi.get('/home', tsKgService.getHome);
-tskgApi.get('/search', tsKgMiddleware.search(), tsKgService.search);
 tskgApi.post(
     '/episodes',
     tsKgMiddleware.getEpisodes(),

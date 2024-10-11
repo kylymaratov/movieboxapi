@@ -1,7 +1,6 @@
 package com.example.tvapp.fragments
 
-
- import android.os.Bundle
+import android.os.Bundle
  import android.view.View
 
 import androidx.leanback.app.RowsSupportFragment
@@ -19,20 +18,17 @@ import com.example.tvapp.models.MoviesResponse
 import com.example.tvapp.models.SeriesResponse
  import com.example.tvapp.presenters.SeriaPresenter
  import android.content.Intent
- import android.util.Log
- import androidx.lifecycle.lifecycleScope
+import android.util.Log
+import androidx.lifecycle.lifecycleScope
  import com.example.tvapp.MyApplication
  import com.example.tvapp.VideoPlayerActivity
- import com.example.tvapp.api.Response
- import com.example.tvapp.api.TsKgRepo
- import com.example.tvapp.api.WatchRequest
+ import com.example.tvapp.api.Repository
  import kotlinx.coroutines.launch
 
 class SeriesListFragment : RowsSupportFragment() {
     private var itemSelectedListener: ((MoviesResponse.Result.Detail) -> Unit)? = null
-    private lateinit var movie_id: String
 
-    private lateinit var repository: TsKgRepo
+
     private val listRowPresenter = object : ListRowPresenter(FocusHighlight.ZOOM_FACTOR_SMALL) {
         override fun isUsingDefaultListSelectEffect(): Boolean {
             return true
@@ -47,15 +43,14 @@ class SeriesListFragment : RowsSupportFragment() {
         super.onViewCreated(view, savedInstanceState)
         adapter = rootAdapter
 
-        repository = (requireActivity().application as MyApplication).tsKgRepo
-
-
         onItemViewSelectedListener = ItemViewSelectedListener()
         onItemViewClickedListener = ItemViewClickListener()
+
+
     }
 
-    fun bindSeriesData(icnoming_movie_id: String, seasons: SeriesResponse) {
-        movie_id = icnoming_movie_id
+    fun bindSeriesData(seasons: SeriesResponse) {
+
         seasons.seasons.forEachIndexed { index, season ->
             val arrayObjectAdapter = ArrayObjectAdapter(SeriaPresenter())
 
@@ -72,15 +67,19 @@ class SeriesListFragment : RowsSupportFragment() {
 
     private fun openVideo(episodes: List<SeriesResponse.Episodes>, currentIndex: Int) {
         val episodeUrls = episodes.map { it.episode_source_id }.toCollection(ArrayList())
+        val detailsFragment = parentFragment as? DetailsFragment
+        val identificator = detailsFragment?.getIdentification() ?: ""
+        val movie_id = detailsFragment?.getMovieId() ?: ""
 
         val intent = Intent(context, VideoPlayerActivity::class.java).apply {
             putStringArrayListExtra("EPISODE_SOURCE_LIST", episodeUrls)
             putExtra("CURRENT_EPISODE", currentIndex - 1)
             putExtra("MOVIE_ID", movie_id)
+            putExtra("IDENTIFICATOR", identificator)
         }
+
         startActivity(intent)
     }
-
 
     fun getSeasonsFromRootAdapter(season_id: Int): List<SeriesResponse.Episodes>? {
         val listRow = (0 until rootAdapter.size()).map { rootAdapter.get(it) as ListRow }
@@ -130,6 +129,5 @@ class SeriesListFragment : RowsSupportFragment() {
                 }
             }
         }
-
     }
 }

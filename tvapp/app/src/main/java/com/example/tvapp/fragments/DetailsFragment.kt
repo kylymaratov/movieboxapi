@@ -1,6 +1,7 @@
 package com.example.tvapp.fragments
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +15,6 @@ import com.example.tvapp.R
 import com.example.tvapp.models.MoviesResponse
 
 
-
 class DetailsFragment : Fragment() {
     lateinit var movie_title: TextView
     lateinit var movie_genre: TextView
@@ -24,6 +24,8 @@ class DetailsFragment : Fragment() {
     lateinit var movie_cover: ImageView
     lateinit var back_button: Button
     lateinit var seriesListFragment: SeriesListFragment
+    lateinit var identificator : String
+     lateinit var movie_id: String
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,18 +51,29 @@ class DetailsFragment : Fragment() {
 
         seriesListFragment = SeriesListFragment()
 
+
         arguments?.getParcelable<MoviesResponse.Result.Detail>("movie")?.let { movie ->
             bindDetailsData(movie)
             movie.seasons?.let { seasons ->
-                seriesListFragment.bindSeriesData(movie.movie_id, seasons)
+                identificator = arguments?.getString("identificator").toString()
+                movie_id = movie.movie_id
+                seriesListFragment.bindSeriesData(seasons)
                 init()
             }
         }
 
-
         back_button.setOnClickListener {
             requireActivity().onBackPressed()
         }
+    }
+
+    fun getIdentification(): String {
+        return identificator
+    }
+
+
+    fun getMovieId(): String {
+        return movie_id
     }
 
     private fun init() {
@@ -71,7 +84,7 @@ class DetailsFragment : Fragment() {
 
     fun bindDetailsData(movie: MoviesResponse.Result.Detail) {
         movie_title.text = movie.title
-        movie_genre.text = "Жанры: " + movie.genre
+        movie_genre.text = movie.genre
         movie_description.text = movie.seasons?.description
         movie_additional_info.text = "Год: " + movie.year + " | " + "Сезонов: " + movie.seasons?.seasons?.size + " | " + "Страна: " + movie.country
 

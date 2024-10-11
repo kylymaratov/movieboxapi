@@ -10,6 +10,13 @@ export class CoreMiddleware {
         ];
     }
 
+    search(): any[] {
+        return [
+            query('query').notEmpty().withMessage('query field required'),
+            this.checkValidationResult,
+        ];
+    }
+
     private checkValidationResult(
         req: Request,
         res: Response,

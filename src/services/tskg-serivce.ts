@@ -6,17 +6,6 @@ export class TskgSerivce {
     private tsKgParser: TsKgParser = new TsKgParser();
     constructor() {}
 
-    search = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { query } = req.query;
-            const searchResult = await this.tsKgParser.search(query as string);
-
-            res.status(200).json(searchResult.data);
-        } catch (error) {
-            next(error);
-        }
-    };
-
     getHome = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const home = await this.tsKgParser.getHome();

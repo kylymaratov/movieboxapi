@@ -48,6 +48,7 @@ class TsKgParser {
             if (response.data.length) {
                 result.data.result.push({
                     title: 'TS.KG',
+                    identificator: 'tskg',
                     details: response.data.map((item) => {
                         return {
                             movie_id: item.url,

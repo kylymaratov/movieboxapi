@@ -9,9 +9,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
-import com.example.tvapp.api.TsKgRepo
+import com.example.tvapp.api.Repository
 import com.example.tvapp.api.WatchRequest
-import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.PlayerView
@@ -21,7 +20,7 @@ import com.google.android.exoplayer2.Player
 import kotlinx.coroutines.launch
 
 class VideoPlayerActivity : AppCompatActivity() {
-    private lateinit var repository: TsKgRepo
+    private lateinit var repository: Repository
     private lateinit var player: SimpleExoPlayer
     private lateinit var playerView: PlayerView
     private lateinit var retryButton: Button
@@ -29,18 +28,18 @@ class VideoPlayerActivity : AppCompatActivity() {
     private lateinit var episode_source_list: List<String>
     private var currentEpisodeIndex: Int = 0
     private lateinit var movie_id: String
+    private lateinit var identificator: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_player)
 
-        repository = (application as MyApplication).tsKgRepo
+        repository = (application as MyApplication).repository
 
         episode_source_list = intent.getStringArrayListExtra("EPISODE_SOURCE_LIST") ?: emptyList()
         currentEpisodeIndex = intent.getIntExtra("CURRENT_EPISODE", 0)
         movie_id = intent.getStringExtra("MOVIE_ID")  ?: ""
-
-        Log.d("Message",  episode_source_list.toString() )
+        identificator = intent.getStringExtra("IDENTIFICATOR")  ?: ""
 
         player = SimpleExoPlayer.Builder(this).build()
         playerView = findViewById(R.id.player_view)
@@ -59,8 +58,9 @@ class VideoPlayerActivity : AppCompatActivity() {
     }
 
     private fun playEpisode(episode_source_id: String) {
+
         lifecycleScope.launch {
-            val info = repository.watchMovie(WatchRequest(movie_id, episode_source_id))
+            val info = repository.watchMovie(identificator, WatchRequest(movie_id, episode_source_id))
 
             if (info?.video != null) {
                 val mediaItem = MediaItem.fromUri(info.video.url)

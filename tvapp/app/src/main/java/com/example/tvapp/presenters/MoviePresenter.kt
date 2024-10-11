@@ -11,59 +11,54 @@ import com.bumptech.glide.Glide
 import com.example.tvapp.R
 import com.example.tvapp.models.MoviesResponse
 
-class MoviePresenter: Presenter() {
-
-    lateinit var movie_title: TextView
-    lateinit var movie_cover: ImageView
-
+class MoviePresenter : Presenter() {
     override fun onCreateViewHolder(parent: ViewGroup?): ViewHolder {
         val view = LayoutInflater.from(parent?.context).inflate(R.layout.item_movie, parent, false)
 
         val params = view.layoutParams
-
         params.width = getWidthInPercent(parent!!.context, 12)
 
-        movie_title = view.findViewById(R.id.movie_title)
-        movie_cover= view.findViewById(R.id.poster_image)
+        view.layoutParams = params
 
         return ViewHolder(view)
     }
 
-
-    fun getWidthInPercent(context: Context, percent: Int): Int {
-        val width = context.resources.displayMetrics.widthPixels ?: 0
-        return (width * percent) / 100
-    }
-
-    fun getHeightInPercent(context: Context, percent: Int): Int {
-        val width = context.resources.displayMetrics.heightPixels ?: 0
-        return (width * percent) / 100
-    }
-
     override fun onBindViewHolder(viewHolder: ViewHolder?, item: Any?) {
-        val content = item as? MoviesResponse.Result.Detail
+        val content = item as? MoviesResponse.Result.Detail ?: return
 
-        val url = content?.poster_url
+        val movie_title: TextView = viewHolder?.view?.findViewById(R.id.movie_title) ?: return
+        val movie_cover: ImageView = viewHolder.view.findViewById(R.id.poster_image)
 
-        if (content?.search_title != null) {
-            movie_title.text = content.title
-            movie_title.visibility = View.VISIBLE
+        movie_title.text = content.title
+        movie_title.visibility = if (content.search_title != null) View.VISIBLE else View.GONE
+
+        val params = viewHolder.view.layoutParams
+
+        params.height = if (content.search_title != null) {
+            getHeightInPercent(viewHolder.view.context, 45)
+        } else {
+            getHeightInPercent(viewHolder.view.context, 32)
         }
 
-        if (content?.search_title == null && viewHolder?.view != null) {
-            val params = viewHolder.view.layoutParams
-            params.height =  getHeightInPercent(viewHolder.view?.context!!, 32)
-            viewHolder.view.layoutParams = params
-        }
+        viewHolder.view.layoutParams = params
 
-         Glide.with(viewHolder?.view?.context!!)
-            .load(url)
-            .skipMemoryCache(false)
+        Glide.with(viewHolder.view.context)
+            .load(content.poster_url)
             .into(movie_cover)
     }
 
-
     override fun onUnbindViewHolder(viewHolder: ViewHolder?) {
+         viewHolder?.view?.findViewById<TextView>(R.id.movie_title)?.text = ""
+        viewHolder?.view?.findViewById<ImageView>(R.id.poster_image)?.setImageDrawable(null)
+    }
 
+    private fun getWidthInPercent(context: Context, percent: Int): Int {
+        val width = context.resources.displayMetrics.widthPixels
+        return (width * percent) / 100
+    }
+
+    private fun getHeightInPercent(context: Context, percent: Int): Int {
+        val height = context.resources.displayMetrics.heightPixels
+        return (height * percent) / 100
     }
 }

@@ -8,6 +8,7 @@ data class MoviesResponse(
 ) {
     data class Result(
         val details: List<Detail> = listOf(),
+        val identificator: String? = "",
         val title: String = ""
     ) {
         data class Detail(

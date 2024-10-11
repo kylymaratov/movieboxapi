@@ -15,17 +15,20 @@ class DetailsActivity : FragmentActivity() {
         setContentView(R.layout.activity_details)
 
         val movie = intent.getParcelableExtra<MoviesResponse.Result.Detail>("movie")
+        val identificator = intent.getStringExtra("identificator") ?: ""
+
 
         movie?.let {
-            init(movie)
+            init(movie, identificator)
         }
     }
 
-    fun init (movie: MoviesResponse.Result.Detail ) {
+    fun init (movie: MoviesResponse.Result.Detail, identificator: String) {
         detailsFragment = DetailsFragment()
 
         val bundle = Bundle().apply {
             putParcelable("movie", movie)
+            putString("identificator", identificator)
         }
 
         detailsFragment.arguments = bundle
@@ -33,7 +36,5 @@ class DetailsActivity : FragmentActivity() {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.details_container, detailsFragment)
         transaction.commit()
-
-
     }
 }

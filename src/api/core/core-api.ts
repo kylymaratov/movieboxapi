@@ -8,5 +8,6 @@ const coreMiddleware = new CoreMiddleware();
 
 coreApi.get('/menu', coreService.getMenu);
 coreApi.get('/logs', coreMiddleware.getLogs(), coreService.getLogs);
+coreApi.get('/search', coreMiddleware.search(), coreService.search);
 
 export default coreApi;

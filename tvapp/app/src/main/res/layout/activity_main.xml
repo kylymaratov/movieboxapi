@@ -3,54 +3,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
 
-    <androidx.leanback.widget.BrowseFrameLayout
-        android:id="@+id/blfNavBar"
+    <LinearLayout
+        android:id="@+id/navigation_drawer"
         android:layout_width="50dp"
         android:layout_height="match_parent"
-        android:nextFocusLeft="@id/container"
-        android:background="#000"
-        >
+        android:orientation="vertical"
+        android:background="#0F0F0F">
 
-        <LinearLayout
-            android:orientation="vertical"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_menu"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/btn_search"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_marginLeft="10dp"
-                android:text="Поиск"
-                android:gravity="center_vertical"
-                android:drawablePadding="20dp"
-                android:drawableLeft="@drawable/ic_search"
-                android:focusable="true"
-                android:background="@drawable/selector_menu"
-                android:textColor="@color/text_selector_white_grey"
-                />
-
-            <TextView
-                android:id="@+id/btn_home"
-                android:layout_width="match_parent"
-                android:layout_marginLeft="10dp"
-                android:gravity="center_vertical"
-                android:text="TS.KG"
-                android:drawablePadding="20dp"
-                android:drawableLeft="@drawable/ic_movie"
-                android:layout_height="45dp"
-                android:background="@drawable/selector_menu"
-                android:textColor="@color/text_selector_white_grey"
-                android:focusable="true" />
-        </LinearLayout>
-
-
-    </androidx.leanback.widget.BrowseFrameLayout>
 
 </merge>

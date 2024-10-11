@@ -2,11 +2,11 @@ package com.example.tvapp
 
 import android.app.Application
 import com.example.tvapp.api.RetrofitHelper
-import com.example.tvapp.api.TsKgRepo
+import com.example.tvapp.api.Repository
 
 class MyApplication : Application() {
 
-    lateinit var tsKgRepo : TsKgRepo
+    lateinit var repository: Repository
 
     override fun onCreate() {
         super.onCreate()
@@ -16,6 +16,6 @@ class MyApplication : Application() {
 
     private fun init(){
         val service = RetrofitHelper.create()
-        tsKgRepo = TsKgRepo(service)
+        repository = Repository(service)
     }
 }
