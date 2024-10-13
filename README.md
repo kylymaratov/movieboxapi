@@ -1,4 +1,4 @@
-# Movies-api
+# Movie Box Api
 
 Api where all the best sources of films without advertising are collected with convenient viewing without restrictions.
 
@@ -17,4 +17,4 @@ npm run start
 
 ```
 
-AndroidTV app for this api -> https://github.com/kylymaratov/hometv
+AndroidTV app for this api -> https://github.com/kylymaratov/homeflixtv
