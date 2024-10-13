@@ -1,22 +1,18 @@
-<img src="https://i.ibb.co/RgfL1Kn/banner.webp" alt="Logo" width="120px" height="70px"/>
+# Movies-api
 
-# Home Theater
- 
+Api where all the best sources of films without advertising are collected with convenient viewing without restrictions.
 
-This is a set of applications for Android TV, desktop, mobile devices for watching movies for free and without ads.
-
- 
 ## Usage 
 
 ### Run api server from root directory
 
-Command for install depends
+Install depends
 ```
- npm install
+npm install
 ```
 
-Run server
+Run api
 ```
- npm run start
+npm run start
 
 ```
