@@ -16,3 +16,5 @@ Run api
 npm run start
 
 ```
+
+AndroidTV app for this api -> https://github.com/kylymaratov/hometv
